@@ -1776,3 +1776,28 @@ g_FrameFlags = 0x8006CB94;
 
 // NsfLevel's word at 0x14 (0x80067588 + 0x14), which Nsf_OpenLevel points past the NSD's records: CrashEdit's NSD layout from there (NsdLevel), checked by the code's use of it: the level's id at 8, the GOOL entries by object type from 0x10 (Obj_Init opens the type's), the spawn points of 24 bytes from 0x1DC (Obj_SpawnEntity's player start at a spawn's 0xC), and Nsf_OpenLevel's NSD size 0x714 + 24 per spawn point past the first, 0x520 + 0x1DC + 24 as CrashEdit's minimum 0x6FC plus one
 g_LevelHeader = 0x8006759C;
+
+// Names from the psx-crash port (titles/crash2/executable.json, entry/facts.cpp) where this map had none; docs/our-names.md
+GpuWatchdogDiagnosticFormat = 0x80011040;
+GpuWatchdogCallbackFormat = 0x80011074;
+LibcdInitLastSyncCallback = 0x8005C7CC;
+LibcdInitLastReadyCallback = 0x8005C7D0;
+LibcdInitLastStatus = 0x8005C7DC;
+LibcdInitLastResult = 0x8005C7E0;
+LibcdInitLastCommand = 0x8005C7EC;
+LibcdInitPendingCommand = 0x8005C7ED;
+LibcdInitSyncStatus = 0x8005CAAC;
+VsyncQueryCounter = 0x8005DC98;
+GpuWatchdogGp0Pointer = 0x8005DDF0;
+GpuWatchdogStatusPointer = 0x8005DDF4;
+GpuWatchdogGp1Pointer = 0x8005DDFC;
+GpuWatchdogDmaControlPointer = 0x8005DE0C;
+GpuWatchdogLastCallback = 0x8005DE10;
+GpuWatchdogLastPayload = 0x8005DE14;
+GpuWatchdogLastArgument = 0x8005DE18;
+GpuWatchdogQueueWrite = 0x8005DE20;
+GpuWatchdogQueueRead = 0x8005DE24;
+GpuWatchdogCriticalToken = 0x8005DE30;
+GpuWatchdogDeadline = 0x8005DE34;
+GpuWatchdogPollCount = 0x8005DE38;
+PadBuffersSlot1Buffer = 0x8006996C;
