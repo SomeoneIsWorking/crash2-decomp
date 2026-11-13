@@ -101,7 +101,8 @@ A kind 1 packet is 0x64 bytes: +0 the next packet, +4, +8 and +0xC the place, pr
 (which `Gfx_DrawObjects` loads into $gp), +0x28 and +0x2C the block's two frames (+0x20 and +0x24). The morph draw
 steps that reach a reader are 0x8003F1C8, 0x8003F1D8, 0x8003F410, 0x80040FC4 and 0x800417B0 (the table at 0x8005B708,
 indexed by the object's byte +0x121, or the word at 0x80062ACC when that is 0); 0x8003EF88 has no caller of its own:
-0x80040FC4 branches to 0x8003EF8C when the object's word +0x6C is 0, and otherwise reads through `func_80040D14`. Each
+0x80040FC4 branches to 0x8003EF8C when the object's word +0x6C is 0, and otherwise reads through `func_80040D14` when
+`func_800437F4` passes (below). Each
 step runs `func_800436F4` before its first read, with the packet still in $sp: it loads $s4 and $s5 from +0x28 and +0x2C, sets $t1 to 0x00FF00FF and $t2 to 0xFFFEFFFF, and
 stores the two frames' boxes halved at 0x118 and 0x11C (a frame's packed x/y at +0 and z at +4; the x/y words are added
 as one word, its low half halved as a signed halfword and the word shifted right 17 for the high half). A vertex is
@@ -112,3 +113,15 @@ applies to the boxes as to the bytes: ((4 - k) box_a + k box_b) / 4.
 runs three MVMVAs on the light matrix (0x4A4AE012 on V1 then IR2, 0x4A4A6012 on V0 then IR1, 0x4A4B6012 on V2 then
 IR3) and caches (IR2 << 16 | IR1 & 0xFFFF, IR3). In the raw path ($gp 0) neither reader stores the running bytes at
 0x110..0x116.
+
+The table holds a step pair per index: +0x48F8 below 0x80060000 for one frame (the block's two frames equal) and the next
+word for two, so the lit morph step 0x80040FC4 is index 6, one frame 0x8003FF14. `Gfx_SetupScene` (0x80020A24) sets the
+default index at 0x80062ACC to 1, then to 6 when the scene flags (property 0x185, at 0x80062AD8) have bit 0 and the
+camera entity has property 0x186, whose first word << 4 it stores at 0x80062A3C, and to 10 in a later mode. A packet's
++0x54 is that height (`Gfx_QueueObject` at 0x8001B698), or the object's own +0x9C << 4 when its +0xAC has bit 31
+(0x8001B670, with +0xA0 and +0xA4 at +0x58 and +0x5C); a step copies +0x54 to scratch 0x124. `func_800437F4` takes the
+object's y (+0x64) and returns ((0x124 - (y << 4)) >> 12) + 0x16A, and 0x80040FC4 reads lit only when that is not
+negative. So the lit reader runs for a two-frame object of index 6 whose +0x6C is nonzero and whose y is at most the
+height's own word plus 0x16A << 8. The level starts of the five warps whose default is 6 (scenes 0xD, 0x19, 0x20, 0x21, 0x23)
+meet none of it: Crash takes 0x80040FC4 with +0x6C 0 and y above the bound, and the one object with +0x6C nonzero
+(455) holds one frame with +0xAC bit 0x100, which `Obj_Update` does not queue.
