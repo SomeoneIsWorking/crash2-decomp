@@ -66,5 +66,9 @@ runs for the player either way.
 `anim_frame` (+0xEC) holds the frame index << 8. Each drawn object's frame is fetched by `func_8001A90C` for
 `func_8001A4A4`, which stores two vertex frames at +0x20 and +0x24 of the block `GoolObject.unk_8` points to (and
 the index at +0x2C). An animation whose header word at +8 has bit 0 set stores every other frame: an even index
-fetches stored frame index/2 twice, an odd one stored frames index/2 and index/2 + 1. Which drawer reads the pair,
-and at what weight it blends them, is not yet read.
+fetches stored frame index/2 twice, an odd one stored frames index/2 and index/2 + 1. `Gfx_QueueObject` (kind 1)
+sends a pair whose two frames are equal to the static drawer (table 0x8005B708) and any other pair to the morph
+drawer (table 0x8005B70C); a vertex frame names its model entry at +0x10. The morphing models' vertex
+reader (`func_8003ED14`, table 0x8005B70C) decodes both frames' bit-packed vertex deltas in step ($s4 and $s5, the
+control words at $gp) and adds the two decoded positions under one mask at 0x8003EF28: a fixed equal weight, with no
+weight input. The retail drawer can draw only the halfway pose between two frames.
