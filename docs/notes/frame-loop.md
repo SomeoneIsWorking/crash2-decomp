@@ -123,6 +123,15 @@ as one word, its low half halved as a signed halfword and the word shifted right
 thus the mean of the two frames' own positions, four times the byte plus the frame's box, so a weight of k quarters
 applies to the boxes as to the bytes: ((4 - k) box_a + k box_b) / 4.
 
+The streams are opened by `func_80043658` (five `jal` sites in the draw steps, after the step's prepare call and
+before the first read). It copies the packet's colour words (+0x34, counted by the first word at +0x30) to scratch
+0x140, loads $gp from +0x60, advances $s4 and $s5 by each frame's own data offset (frame +0x14), and zeroes $t3,
+$sp, $t4 and the first frame's running bytes (0x110). The second frame's bytes at 0x114 keep the previous draw's
+values. No first vertex reads them: over 369,007 reads in scenes 0x6 and 0x15, a decode with both frames' bytes
+started at zero gave the guest's bytes for every vertex. `Gfx_QueueObject` sets +0x60 to the model's control stream
+(model +0x24) when the model's +0xC is at least 6, otherwise to 0, the raw path (0x8001B774). Both frames of a pair
+are therefore read under one control stream per model, and any frames of one model can be read in step.
+
 `func_80040D14` differs from `func_8003ED14` only after the sum: it loads the vertex into VXY0/VZ0 through VXY2/VZ2,
 runs three MVMVAs on the light matrix (0x4A4AE012 on V1 then IR2, 0x4A4A6012 on V0 then IR1, 0x4A4B6012 on V2 then
 IR3) and caches (IR2 << 16 | IR1 & 0xFFFF, IR3). In the raw path ($gp 0) neither reader stores the running bytes at
