@@ -36,7 +36,8 @@ itself (`Gfx_DrawWorlds`, or `Gfx_ResetOt` without a world), so the half run aga
 `g_ObjPool` (0x8006CB14) points at 0x60 records of 0x23C bytes (`Obj_InitPool` 0x8001EE64); free records are linked
 from 0x8006CB58. The first word is 1 while the record is live (`Obj_Init`) and 0 after `Obj_Kill`. Offsets: +0x0C the
 object's executable, +0x60 position (x, y, z), +0x6C rotation (three words, 4096 a turn), +0x78 scale (x negated to
-flip), +0xE8 animation, +0xEC animation frame.
+flip), +0xE8 animation, +0xEC animation frame. The player's record (`g_Player`, 0x8005F38C) is not one of them: in
+scene 0x6 and scene 0x15 it sits 4 bytes past the pool's last record.
 
 `Obj_Update` (0x8001C718) runs an object's GOOL code and physics (`Obj_UpdatePhysics`) only while bit 0x8 of
 `g_FrameFlags` is set: it is that bit's only reader in the executable. With the bit set, the argument `flag`, or an
@@ -65,7 +66,8 @@ runs for the player either way.
 
 `anim_frame` (+0xEC) holds the frame index << 8. Each drawn object's frame is fetched by `func_8001A90C` for
 `func_8001A4A4`, which stores two vertex frames at +0x20 and +0x24 of the block `GoolObject.unk_8` points to (and
-the index at +0x2C). An animation whose header word at +8 has bit 0 set stores every other frame: an even index
+the index at +0x2C). Its callers in the C so far are `func_8001D63C` and the GOOL interpreter (`80037698.c`); with
+`g_FrameFlags` 0x8 clear an object keeps the frames of its last update. An animation whose header word at +8 has bit 0 set stores every other frame: an even index
 fetches stored frame index/2 twice, an odd one stored frames index/2 and index/2 + 1. `Gfx_QueueObject` (kind 1)
 sends a pair whose two frames are equal to the static drawer (table 0x8005B708) and any other pair to the morph
 drawer (table 0x8005B70C); a vertex frame names its model entry at +0x10. The morphing models' vertex
