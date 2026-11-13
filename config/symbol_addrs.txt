@@ -1804,3 +1804,6 @@ PadBuffersSlot1Buffer = 0x8006996C;
 
 // empty (jr ra): Sys_MainLoop calls it at +0x58C between Obj_UpdateAll and Gfx_DrawObjects; psx-crash samples its draw replay there
 Sys_BeforeDrawObjects = 0x80011E88; // type:func
+
+// the picture's vertical shake in 24.8: Gfx_UpdateView adds its whole part to SetGeomOffset's y, then, unpaused, steps it toward 0 with alternating sign (s > 0 to 1 - s, s < 0 to -1 - s)
+g_ScreenShake = 0x8006CB78;
