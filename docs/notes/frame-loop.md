@@ -74,3 +74,15 @@ drawer (table 0x8005B70C); a vertex frame names its model entry at +0x10. The mo
 reader (`func_8003ED14`, table 0x8005B70C) decodes both frames' bit-packed vertex deltas in step ($s4 and $s5, the
 control words at $gp) and adds the two decoded positions under one mask at 0x8003EF28: a fixed equal weight, with no
 weight input. The retail drawer can draw only the halfway pose between two frames.
+
+The morph vertex readers are subroutines with a register interface of their own: `func_8003ED14` (unlit; 16 `jal`
+sites in the drawers at 0x8003EF88, `func_8003F1D8`, `func_8003F410` and `func_800417B0`) and a lit counterpart that opens the same way at
+`func_80040D14` (3 sites). In: $t0 the strip command (bit 26 set: the vertex cached at $v1 + 0x140 + (($t0 >> 13) &
+0x7F8)), $v1 the scratchpad, $s4 and $s5 the two frames' streams, $gp the field widths (0: three raw bytes a vertex),
+$t3 and $sp the two bit buffers, $t4 the bit count, $t1 the x/y lane mask, $t2 the carry mask, $s6 the colours. Out:
+$t9 the VXY pair, $t8 z (both also stored in the cache), $a0 the vertex's colour. The two frames' decoded bytes meet at
+0x8003EF28: xy = ((a & $t1) + (b & $t1)) << 1 plus the box's xy (0x118), masked by $t2; z = ((a & 0xFF00) + (b &
+0xFF00)) >> 7 plus the box's z (0x11C). A weight of k quarters on the second frame is the same sum as (4 - k)(a & $t1)
++ k(b & $t1) and ((4 - k)(a & 0xFF00) + k(b & 0xFF00)) >> 8, exact in each 16-bit lane, and k = 2 is the retail sum.
+`Gfx_DrawObjects` calls a packet's place, prepare and draw steps (`jalr` $s6, $t8, $s7 at 0x8003DC94) with the packet
+in $sp.
