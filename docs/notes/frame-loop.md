@@ -47,6 +47,16 @@ draw bit is set, and a `flag` of 0 also needs `g_FrameFlags` 0x8000000 (set in l
 `Obj_UpdateAll(0)` (the paused pass) therefore still runs the GOOL code of objects holding 0x100000. `Input_Update`
 runs for the player either way.
 
+`Obj_UpdateAll` walks with `Obj_ForEachList` (0x80018DD0) over the 8 list heads at 0x8006CB18, handing it
+`func_80018CAC` and `Obj_Update`; `Obj_UpdateAll` is the only code that passes `Obj_Update` (0x8001C310 is its only
+reference). `func_80018CAC` reads each child's next sibling (+0x48) before descending into it with `func_80018AA8`,
+which runs the function on the node first, kills it (`Obj_Kill`) when it returns -0x19, then walks its children
+(+0x4C) up to the first dead one. The lists change under the walk (spawns, `Obj_SetParent`, kills): in scene 0x15 an
+object spawned during the walk is queued where the walk reaches it, not where it sits in the lists afterwards, some
+objects are updated and queued twice in one walk, and an object queued and then killed is still drawn. The frame's
+queue order is the walk's, not the lists' order once the walk is done. `Obj_Update`'s tail (0x8001CBE4) is the only call of
+`Gfx_QueueObject`.
+
 ## Camera
 
 `g_CameraX..Z` (0x800607F4, 24.8) and `g_CameraAngleX..Z` (0x80060800, 4096 a turn) are what `Gfx_UpdateView` reads.
