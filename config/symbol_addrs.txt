@@ -1801,3 +1801,6 @@ GpuWatchdogCriticalToken = 0x8005DE30;
 GpuWatchdogDeadline = 0x8005DE34;
 GpuWatchdogPollCount = 0x8005DE38;
 PadBuffersSlot1Buffer = 0x8006996C;
+
+// empty (jr ra): Sys_MainLoop calls it at +0x58C between Obj_UpdateAll and Gfx_DrawObjects; psx-crash samples its draw replay there
+Sys_BeforeDrawObjects = 0x80011E88; // type:func
