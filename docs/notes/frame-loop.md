@@ -31,6 +31,20 @@ A GfxFrame holds its primitive base at +4 and cursor at +8, its ordering table a
 cursor to the base, the head to 0 and the node cursor to its base. The ordering table is cleared by the picture half
 itself (`Gfx_DrawWorlds`, or `Gfx_ResetOt` without a world), so the half run again on a reset buffer rebuilds it.
 
+## Fade
+
+The fade word at 0x8006CD18 is stepped by `Gfx_EndFrame` before it is drawn, so the picture half run again
+from the same entry draws the next level. While it is positive it falls by the word at 0x8006CD1C each frame,
+clamped to 0, and the new value is drawn. Scene 0x6's warp-in enters at 0x100 with a step of 0x20, and the
+seven frames after it draw 0xE0 down to 0. Below zero it rises toward 0 and draws 0x100 plus the word; -1 and
+-2 are its rest states.
+
+`Gfx_DrawFade` (0x80016B08) has three call sites, all in `Gfx_EndFrame` (0x80016504, 0x8001651C, 0x80016540). It
+takes 0xC bytes at the build buffer's primitive cursor for a draw mode and 0x18 for a flat quad, even for level 0.
+Only a nonzero level fills and links them. The quad's grey (bytes +4..+6) is table 0x8005B500 at level >> 4,
+interpolated by the level's low nibble, a grey ramp that reaches 255 at 0x120. The blend mode is 1 (adds) when
+`g_FrameFlags` (0x8006CB94) has 0x800000 set, otherwise 2 (subtracts). Grey 0 changes no pixel in either mode.
+
 ## Objects
 
 `g_ObjPool` (0x8006CB14) points at 0x60 records of 0x23C bytes (`Obj_InitPool` 0x8001EE64); free records are linked
@@ -70,7 +84,7 @@ queue order is the walk's, not the lists' order once the walk is done. `Obj_Upda
   copied to 0x80062A6C/0x80062A70 and stepped by property 0x1B5's velocity (or 0x8006CCC4..CC while `g_FrameFlags`
   0x10000000 is set).
 
-`Gfx_EndFrame` steps `g_FrameCount`, the counter at 0x80060944 and the fade at 0x8006CD18 before it draws them.
+`Gfx_EndFrame` steps `g_FrameCount`, the counter at 0x80060944 and the fade at 0x8006CD18 (Fade, above) before it draws them.
 
 ## Animation
 
