@@ -77,6 +77,7 @@ break its build, so ours waits here until the tree renames them.
 | `0x8005DE34` | `GpuWatchdogDeadline` | data | `entry/facts.cpp kGpuWatchdog.deadline` |
 | `0x8005DE38` | `GpuWatchdogPollCount` | data | `entry/facts.cpp kGpuWatchdog.pollCount` |
 | `0x8006996C` | `PadBuffersSlot1Buffer` | data | `entry/facts.cpp kPadBuffers.slot1Buffer` |
+| `0x80011E88` | `Sys_BeforeDrawObjects` | func | `frame/draw_replay.cpp kSampleStub` |
 
 ## Code sites
 
@@ -85,6 +86,11 @@ Addresses inside a function the port stops at, returns to or patches; not symbol
 | address | where | port source |
 |---|---|---|
 | `0x80011848` | `NativeFrameCoreLoop + 0x48` | `runtime.native_frame.iteration.entry` |
+| `0x80011B68` | `NativeFrameCoreLoop + 0x368` | `frame/draw_section.cpp kViewCall` |
+| `0x80011D80` | `NativeFrameCoreLoop + 0x580` | `frame/draw_section.cpp kObjectsCall` |
+| `0x80011D94` | `NativeFrameCoreLoop + 0x594` | `frame/draw_section.cpp kDrawObjects` |
+| `0x80011DB4` | `NativeFrameCoreLoop + 0x5B4` | `frame/draw_section.cpp kEndFrameCall` |
+| `0x80016790` | `NativeFrameGpuUpdate + 0x334` | `frame/draw_section.cpp kSoundUpdate` |
 | `0x80011DC4` | `NativeFrameCoreLoop + 0x5C4` | `runtime.native_frame.done.load_entry` |
 | `0x80016838` | `NativeFrameGpuUpdate + 0x3DC` | `runtime.native_frame.first_vsync` |
 | `0x80016840` | `NativeFrameGpuUpdate + 0x3E4` | `runtime.native_frame.after_first_vsync` |
