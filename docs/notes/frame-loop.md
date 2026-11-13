@@ -38,12 +38,33 @@ from 0x8006CB58. The first word is 1 while the record is live (`Obj_Init`) and 0
 object's executable, +0x60 position (x, y, z), +0x6C rotation (three words, 4096 a turn), +0x78 scale (x negated to
 flip), +0xE8 animation, +0xEC animation frame.
 
-`Obj_UpdateAll(0)` (the paused pass) runs no GOOL code except on objects whose state flags hold 0x100000; it calls
-`Input_Update` for the player and queues each drawn object with `Gfx_QueueObject` (0x8001ABF8) while `g_FrameFlags`
-holds 0x8000000, as it does in levels.
+`Obj_Update` (0x8001C718) runs an object's GOOL code and physics (`Obj_UpdatePhysics`) only while bit 0x8 of
+`g_FrameFlags` is set: it is that bit's only reader in the executable. With the bit set, the argument `flag`, or an
+object's state flag 0x100000 in its place, selects the logic path; otherwise the object only places itself
+(`func_8001AA80`). Queueing is separate: an object is queued with `Gfx_QueueObject` (0x8001ABF8) when its kind's
+draw bit is set, and a `flag` of 0 also needs `g_FrameFlags` 0x8000000 (set in levels) or the object's 0x100000.
+`Obj_UpdateAll(0)` (the paused pass) therefore still runs the GOOL code of objects holding 0x100000. `Input_Update`
+runs for the player either way.
 
 ## Camera
 
 `g_CameraX..Z` (0x800607F4, 24.8) and `g_CameraAngleX..Z` (0x80060800, 4096 a turn) are what `Gfx_UpdateView` reads.
-`Gfx_UpdateView` also steps the shake at 0x8006CB78 when unpaused and copies the previous view matrices, so a second
-call in one pass sees the shake one step further.
+
+`Gfx_UpdateView` steps two things when `g_Paused` is 0, so a second call in one pass draws them a tick further:
+
+- `g_ScreenShake` (0x8006CB78, 24.8): `SetGeomOffset` takes 0x8006CC20 + 0x100 and 0x8006CC24 + 0x6C plus its whole part, then
+  it steps toward 0 with alternating sign (s > 0 becomes 1 - s, s < 0 becomes -1 - s, 0 stays). It moves the
+  picture, not the camera.
+- The streaks' scroll in `Gfx_SetupScene` (scene flag 0x10): the u16 pair at 0x80062A74 and the word at 0x80062A78 are
+  copied to 0x80062A6C/0x80062A70 and stepped by property 0x1B5's velocity (or 0x8006CCC4..CC while `g_FrameFlags`
+  0x10000000 is set).
+
+`Gfx_EndFrame` steps `g_FrameCount`, the counter at 0x80060944 and the fade at 0x8006CD18 before it draws them.
+
+## Animation
+
+`anim_frame` (+0xEC) holds the frame index << 8. Each drawn object's frame is fetched by `func_8001A90C` for
+`func_8001A4A4`, which stores two vertex frames at +0x20 and +0x24 of the block `GoolObject.unk_8` points to (and
+the index at +0x2C). An animation whose header word at +8 has bit 0 set stores every other frame: an even index
+fetches stored frame index/2 twice, an odd one stored frames index/2 and index/2 + 1. Which drawer reads the pair,
+and at what weight it blends them, is not yet read.
