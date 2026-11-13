@@ -124,8 +124,8 @@ thus the mean of the two frames' own positions, four times the byte plus the fra
 applies to the boxes as to the bytes: ((4 - k) box_a + k box_b) / 4.
 
 The streams are opened by `func_80043658` (five `jal` sites in the draw steps, after the step's prepare call and
-before the first read). It copies the packet's colour words (+0x34, counted by the first word at +0x30) to scratch
-0x140, loads $gp from +0x60, advances $s4 and $s5 by each frame's own data offset (frame +0x14), and zeroes $t3,
+before the first read). It copies the colour words +0x34 points at (the reader's $s6 table; their count is the first word
+of the list +0x30 points at, which it leaves in $s2) to scratch 0x140, loads $gp from +0x60, advances $s4 and $s5 by each frame's own data offset (frame +0x14), and zeroes $t3,
 $sp, $t4 and the first frame's running bytes (0x110). The second frame's bytes at 0x114 keep the previous draw's
 values. No first vertex reads them: over 369,007 reads in scenes 0x6 and 0x15, a decode with both frames' bytes
 started at zero gave the guest's bytes for every vertex. `Gfx_QueueObject` sets +0x60 to the model's control stream
