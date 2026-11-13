@@ -86,3 +86,19 @@ $t9 the VXY pair, $t8 z (both also stored in the cache), $a0 the vertex's colour
 + k(b & $t1) and ((4 - k)(a & 0xFF00) + k(b & 0xFF00)) >> 8, exact in each 16-bit lane, and k = 2 is the retail sum.
 `Gfx_DrawObjects` calls a packet's place, prepare and draw steps (`jalr` $s6, $t8, $s7 at 0x8003DC94) with the packet
 in $sp.
+
+A kind 1 packet is 0x64 bytes: +0 the next packet, +4, +8 and +0xC the place, prepare and draw steps, +0x10 the object
+(which `Gfx_DrawObjects` loads into $gp), +0x28 and +0x2C the block's two frames (+0x20 and +0x24). The morph draw
+steps that reach a reader are 0x8003F1C8, 0x8003F1D8, 0x8003F410, 0x80040FC4 and 0x800417B0 (the table at 0x8005B708,
+indexed by the object's byte +0x121, or the word at 0x80062ACC when that is 0); 0x8003EF88 has no caller of its own:
+0x80040FC4 branches to 0x8003EF8C when the object's word +0x6C is 0, and otherwise reads through `func_80040D14`. Each
+step runs `func_800436F4` before its first read, with the packet still in $sp: it loads $s4 and $s5 from +0x28 and +0x2C, sets $t1 to 0x00FF00FF and $t2 to 0xFFFEFFFF, and
+stores the two frames' boxes halved at 0x118 and 0x11C (a frame's packed x/y at +0 and z at +4; the x/y words are added
+as one word, its low half halved as a signed halfword and the word shifted right 17 for the high half). A vertex is
+thus the mean of the two frames' own positions, four times the byte plus the frame's box, so a weight of k quarters
+applies to the boxes as to the bytes: ((4 - k) box_a + k box_b) / 4.
+
+`func_80040D14` differs from `func_8003ED14` only after the sum: it loads the vertex into VXY0/VZ0 through VXY2/VZ2,
+runs three MVMVAs on the light matrix (0x4A4AE012 on V1 then IR2, 0x4A4A6012 on V0 then IR1, 0x4A4B6012 on V2 then
+IR3) and caches (IR2 << 16 | IR1 & 0xFFFF, IR3). In the raw path ($gp 0) neither reader stores the running bytes at
+0x110..0x116.
