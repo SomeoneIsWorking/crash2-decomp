@@ -91,7 +91,11 @@ queue order is the walk's, not the lists' order once the walk is done. `Obj_Upda
 `anim_frame` (+0xEC) holds the frame index << 8. Each drawn object's frame is fetched by `func_8001A90C` for
 `func_8001A4A4`, which stores two vertex frames at +0x20 and +0x24 of the block `GoolObject.unk_8` points to (and
 the index at +0x2C). Its callers in the C so far are `func_8001D63C` and the GOOL interpreter (`80037698.c`); with
-`g_FrameFlags` 0x8 clear an object keeps the frames of its last update. An animation whose header word at +8 has bit 0 set stores every other frame: an even index
+`g_FrameFlags` 0x8 clear an object keeps the frames of its last update. Block +0x28 is the model entry
+`func_8001A4A4` opened for those frames; `func_8001AA80` passes its word +0x10 to the kind 1 scale step (table
+0x8005B650), and the logic paths run `func_8001A4A4` just before it. `Obj_Update` with logic off calls
+`func_8001AA80` alone, so it reads the entry as the last update left it, even after a later object's
+`Nsf_OpenEntry` paged it out (scene 0x22: entry 0x801A4BD8 replaced within one walk). An animation whose header word at +8 has bit 0 set stores every other frame: an even index
 fetches stored frame index/2 twice, an odd one stored frames index/2 and index/2 + 1. `Gfx_QueueObject` (kind 1)
 sends a pair whose two frames are equal to the static drawer (table 0x8005B708) and any other pair to the morph
 drawer (table 0x8005B70C); a vertex frame names its model entry at +0x10. The morphing models' vertex
