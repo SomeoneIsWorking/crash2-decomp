@@ -28,6 +28,11 @@ The zone's sort list carries polygons beyond the 4:3 right edge: in scene 0x15 a
 with the immediate at 0x80041FA4 written to 0x3FF through the debug server, the right margin fills with walls
 and floor the retail bound rejected, and the 4:3 picture is unchanged.
 
+The list itself is disc data for the 4:3 view: `func_80029800` copies a whole SLST list or applies a delta to the
+previous one (`Gfx_DecodeSortListForward`, `Gfx_DecodeSortListBackward`), with no screen test. In the warp room (scene
+0x02) at 16:9 the list's polygons reach SX -376 to 664, but none covers the margin past the Snow Go doorway (SX 560 to
+595 at SY 30, 580 to 595 at SY 90): that gap is missing from the list, not culled.
+
 ## Object box test
 
 `Gfx_QueueObject` stores a packet's visibility test at packet + 0x1C: `func_80041E50` (always visible, `t8` 0)
