@@ -16,4 +16,6 @@ handler of `g_CameraMode` (0x8005B994) when it is not 5 (following the path):
 camera is wherever the block put it: a cut. GOOL calls it (`Gool_OpMisc` case 12/1) as well as `Sys_MainLoop`.
 
 Observed in psx-crash's run of the attract demos (scenes 0x1E and 0x21): `Sys_LoadCheckpoint` runs in the first frame of
-each level; modes 7 and 9 were not reached there.
+each level; modes 7 and 9 were not reached there. Mode 7 is reached in scene 0x1C (the New Game intro) 118 frames after
+the level opens, with the go byte set in the same frame: the picture cuts to black. A run through every scene and
+every spawn point with no input, `g_CameraMode` watched, wrote modes 5 and 7 only; mode 9 was not reached.
