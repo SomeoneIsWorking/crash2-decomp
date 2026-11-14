@@ -18,4 +18,6 @@ camera is wherever the block put it: a cut. GOOL calls it (`Gool_OpMisc` case 12
 Observed in psx-crash's run of the attract demos (scenes 0x1E and 0x21): `Sys_LoadCheckpoint` runs in the first frame of
 each level; modes 7 and 9 were not reached there. Mode 7 is reached in scene 0x1C (the New Game intro) 118 frames after
 the level opens, with the go byte set in the same frame: the picture cuts to black. A run through every scene and
-every spawn point with no input, `g_CameraMode` watched, wrote modes 5 and 7 only; mode 9 was not reached.
+every spawn point with no input, `g_CameraMode` watched, wrote modes 5 and 7 only; mode 9 was not reached. The same run holding up reached mode 9 in scene 0x3 (spawn 0), twice, each
+time in a frame whose `Sys_LoadCheckpoint` (0x8002F6C8) had set mode 5: `func_80011848` (from 0x80011DC4) stored 9,
+and later in that frame a BIOS call (pc 0xA0, from 0x80019658) stored 5 again.
